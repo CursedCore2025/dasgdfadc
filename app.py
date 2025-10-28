@@ -480,5 +480,7 @@ def api_clear_expired_get(confirm: str = None):
     return jsonify({"ok": True, "message": "Cleared expired uids", "count": count})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT, debug=False)
+    port = int(os.environ.get("PORT", 3030))
+    app.run(host="0.0.0.0", port=port, debug=False)
+
 
