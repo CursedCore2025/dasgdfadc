@@ -36,6 +36,16 @@ def admin_auth():
 def find_uid_entry(session, uid):
     return session.query(UIDEntry).filter(UIDEntry.uid == uid).first()
 
+def format_datetime_display(dt):
+    """Format datetime to dd-mm-yyyy hh:mm:ss in GMT+5:30"""
+    if not dt:
+        return "Never"
+    # Convert UTC to GMT+5:30 (Asia/Kolkata)
+    from datetime import timezone
+    gmt5_30 = timezone(timedelta(hours=5, minutes=30))
+    local_dt = dt.replace(tzinfo=timezone.utc).astimezone(gmt5_30)
+    return local_dt.strftime("%d-%m-%Y %H:%M:%S")
+
 def uid_status_dict(e):
     return {
         "uid": e.uid,
@@ -43,7 +53,7 @@ def uid_status_dict(e):
         "paused": bool(e.paused),
         "meta": e.meta or "",
         "created_at": e.created_at.isoformat(),
-        "expires_at": e.expires_at.isoformat() if e.expires_at else None
+        "expires_at": format_datetime_display(e.expires_at) if e.expires_at else "Never"
     }
 
 def parse_duration_to_hours(spec: str):
@@ -97,7 +107,12 @@ def api_add():
         db_session.rollback()
         return jsonify({"ok": False, "message": "Uid Already Added"}), 409
     publish("added", {"uid": uid})
-    return jsonify({"ok": True, "message": "Uid Added", "uid": uid, "expires_at": expires_at.isoformat() if expires_at else None})
+    return jsonify({
+        "ok": True, 
+        "message": "Uid Added", 
+        "uid": uid, 
+        "expires_at": format_datetime_display(expires_at) if expires_at else "Never"
+    })
 
 # ---------- Add (GET) - browser friendly ----------
 @app.route("/api/allow/<string:uid>/<string:duration_spec>", methods=["GET"])
@@ -135,7 +150,12 @@ def api_add_get(uid: str = None, duration_spec: str = None):
         publish("added", {"uid": uid})
     except:
         pass
-    return jsonify({"ok": True, "message": "Uid Added", "uid": uid, "expires_at": expires_at.isoformat() if expires_at else None})
+    return jsonify({
+        "ok": True, 
+        "message": "Uid Added", 
+        "uid": uid, 
+        "expires_at": format_datetime_display(expires_at) if expires_at else "Never"
+    })
 
 # ---------- Check (GET) ----------
 @app.route("/api/check/<string:uid>", methods=["GET"])
@@ -480,7 +500,4 @@ def api_clear_expired_get(confirm: str = None):
     return jsonify({"ok": True, "message": "Cleared expired uids", "count": count})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 3030))
-    app.run(host="0.0.0.0", port=port, debug=False)
-
-
+    app.run(host="0.0.0.0", port=PORT, debug=False)
