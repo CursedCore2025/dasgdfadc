@@ -6,4 +6,4 @@ startCommand = "python app.py"
 
 [variables]
 ADMIN_TOKEN = "Sidahire@1908"
-PORT = "10000"
+PORT = "3030"
