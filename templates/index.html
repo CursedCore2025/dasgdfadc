@@ -357,7 +357,7 @@
             <i class="fas fa-skull-crossbones logo-icon"></i>
             <div class="title-container">
               <h1>Cursed Core UID Bypass</h1>
-              <p>Born To Dominate!!</p>
+              <p>Manage access permissions with dark elegance</p>
             </div>
           </div>
           <div class="admin-token-container mt-3 mt-md-0">
@@ -450,65 +450,7 @@
                 </tr>
               </thead>
               <tbody id="uidTable">
-                <!-- Sample data for demonstration -->
-                <tr data-uid="ABC123">
-                  <td class="mono fw-semibold">ABC123</td>
-                  <td>
-                    <span class="badge bg-success badge-wide">Active</span>
-                  </td>
-                  <td class="mono">2023-12-31 23:59:59</td>
-                  <td class="text-end action-buttons">
-                    <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-danger" onclick="banUID('ABC123')" title="Ban">
-                        <i class="fas fa-ban"></i>
-                      </button>
-                      <button class="btn btn-outline-success" onclick="unbanUID('ABC123')" title="Unban">
-                        <i class="fas fa-check-circle"></i>
-                      </button>
-                      <button class="btn btn-outline-warning" onclick="pauseUID('ABC123')" title="Pause">
-                        <i class="fas fa-pause"></i>
-                      </button>
-                      <button class="btn btn-outline-primary" onclick="unpauseUID('ABC123')" title="Unpause">
-                        <i class="fas fa-play"></i>
-                      </button>
-                      <button class="btn btn-outline-secondary" onclick="delUID('ABC123')" title="Delete">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                      <button class="btn btn-outline-dark" onclick="copyLinks('ABC123')" title="Copy Links">
-                        <i class="fas fa-copy"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr data-uid="XYZ789">
-                  <td class="mono fw-semibold">XYZ789</td>
-                  <td>
-                    <span class="badge bg-danger badge-wide">Banned</span>
-                  </td>
-                  <td class="mono">Never</td>
-                  <td class="text-end action-buttons">
-                    <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-danger" onclick="banUID('XYZ789')" title="Ban">
-                        <i class="fas fa-ban"></i>
-                      </button>
-                      <button class="btn btn-outline-success" onclick="unbanUID('XYZ789')" title="Unban">
-                        <i class="fas fa-check-circle"></i>
-                      </button>
-                      <button class="btn btn-outline-warning" onclick="pauseUID('XYZ789')" title="Pause">
-                        <i class="fas fa-pause"></i>
-                      </button>
-                      <button class="btn btn-outline-primary" onclick="unpauseUID('XYZ789')" title="Unpause">
-                        <i class="fas fa-play"></i>
-                      </button>
-                      <button class="btn btn-outline-secondary" onclick="delUID('XYZ789')" title="Delete">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                      <button class="btn btn-outline-dark" onclick="copyLinks('XYZ789')" title="Copy Links">
-                        <i class="fas fa-copy"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                
               </tbody>
             </table>
           </div>
@@ -518,238 +460,239 @@
 
     <script>
       // --- helpers ---
-      const $ = (s)=>document.querySelector(s);
-      const alertBox = $("#alert");
-      const adminTokenInput = $("#adminToken");
+const $ = (s)=>document.querySelector(s);
+const alertBox = $("#alert");
+const adminTokenInput = $("#adminToken");
 
-      function showAlert(msg, type="info"){
-        alertBox.className = `alert alert-${type} d-flex align-items-center`;
-        alertBox.innerHTML = `
-          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-          <span>${msg}</span>
-        `;
-        alertBox.classList.remove("d-none");
-        setTimeout(()=>alertBox.classList.add("d-none"), 3000);
-      }
+function showAlert(msg, type="info"){
+  alertBox.className = `alert alert-${type} d-flex align-items-center`;
+  alertBox.innerHTML = `
+    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+    <span>${msg}</span>
+  `;
+  alertBox.classList.remove("d-none");
+  setTimeout(()=>alertBox.classList.add("d-none"), 3000);
+}
 
-      function getToken(){
-        return adminTokenInput.value || localStorage.getItem("uid_admin_token") || "";
-      }
-      function setToken(v){
-        adminTokenInput.value = v || "";
-        if(v) localStorage.setItem("uid_admin_token", v);
-      }
+function getToken(){
+  return adminTokenInput.value || localStorage.getItem("uid_admin_token") || "";
+}
+function setToken(v){
+  adminTokenInput.value = v || "";
+  if(v) localStorage.setItem("uid_admin_token", v);
+}
 
-      // load token from localStorage on load
-      (function init(){
-        setToken(localStorage.getItem("uid_admin_token") || new URLSearchParams(location.search).get("admin_token") || "");
-      })();
+// load token from localStorage on load
+(function init(){
+  setToken(localStorage.getItem("uid_admin_token") || new URLSearchParams(location.search).get("admin_token") || "");
+})();
 
-      $("#saveTokenBtn").onclick = ()=>{ setToken(adminTokenInput.value); showAlert("Token saved in this browser","success"); };
+$("#saveTokenBtn").onclick = ()=>{ setToken(adminTokenInput.value); showAlert("Token saved in this browser","success"); };
 
-      // --- API base + wrappers ---
-      const API = {
-        addGET: (uid, duration, meta="") =>
-          fetch(`/api/allow/${encodeURIComponent(uid)}/${encodeURIComponent(duration)}?key=${encodeURIComponent(getToken())}` + (meta?`&meta=${encodeURIComponent(meta)}`:"")),
-        addPOST: (uid, hours, meta="") =>
-          fetch(`/api/add?admin_token=${encodeURIComponent(getToken())}`, {
-            method: "POST", headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({ uid, hours, meta })
-          }),
-        ban: (uid)=> fetch(`/api/deny/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
-        unban: (uid)=> fetch(`/api/allow_unban/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
-        pause: (uid)=> fetch(`/api/pause/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
-        unpause: (uid)=> fetch(`/api/unpause/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
-        del: (uid)=> fetch(`/api/remove/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
-        list: ()=> fetch(`/api/list`),
-        clearExpired: ()=> fetch(`/api/clear_expired/yes?key=${encodeURIComponent(getToken())}`),
-      };
+// --- API base + wrappers ---
+const API = {
+  addGET: (uid, duration, meta="") =>
+    fetch(`/api/allow/${encodeURIComponent(uid)}/${encodeURIComponent(duration)}?key=${encodeURIComponent(getToken())}` + (meta?`&meta=${encodeURIComponent(meta)}`:"")),
+  addPOST: (uid, hours, meta="") =>
+    fetch(`/api/add?admin_token=${encodeURIComponent(getToken())}`, {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ uid, hours, meta })
+    }),
+  ban: (uid)=> fetch(`/api/deny/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+  unban: (uid)=> fetch(`/api/allow_unban/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+  pause: (uid)=> fetch(`/api/pause/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+  unpause: (uid)=> fetch(`/api/unpause/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+  del: (uid)=> fetch(`/api/remove/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+  list: ()=> fetch(`/api/list`),
+  clearExpired: ()=> fetch(`/api/clear_expired/yes?key=${encodeURIComponent(getToken())}`),
+};
 
-      // duration -> hours (for POST) mapper
-      function durToHours(d){
-        const s = String(d || "").toLowerCase();
-        if(s === "forever" || s === "never" || s === "0") return null;
-        if(s.endsWith("d")) return parseFloat(s)*24;
-        if(s.endsWith("h")) return parseFloat(s);
-        if(s.endsWith("m")) return parseFloat(s)/60;
-        const n = parseFloat(s); return isFinite(n)? n : null;
-      }
+// duration -> hours (for POST) mapper
+function durToHours(d){
+  const s = String(d || "").toLowerCase();
+  if(s === "forever" || s === "never" || s === "0") return null;
+  if(s.endsWith("d")) return parseFloat(s)*24;
+  if(s.endsWith("h")) return parseFloat(s);
+  if(s.endsWith("m")) return parseFloat(s)/60;
+  const n = parseFloat(s); return isFinite(n)? n : null;
+}
 
-      // --- Add UID form ---
-      $("#addForm").onsubmit = async (ev)=>{
-        ev.preventDefault();
-        const uid = $("#uid").value.trim();
-        const duration = $("#duration").value;
-        const meta = $("#meta").value.trim();
-        const useGET = $("#useGet").checked;
-        if(!uid){ showAlert("UID is required","warning"); return false; }
+// --- Add UID form ---
+$("#addForm").onsubmit = async (ev)=>{
+  ev.preventDefault();
+  const uid = $("#uid").value.trim();
+  const duration = $("#duration").value;
+  const meta = $("#meta").value.trim();
+  const useGET = $("#useGet").checked;
+  if(!uid){ showAlert("UID is required","warning"); return false; }
 
-        try{
-          let res;
-          if(useGET){
-            res = await API.addGET(uid, duration, meta);
-          } else {
-            res = await API.addPOST(uid, durToHours(duration), meta);
-          }
-          const j = await res.json();
-          if(j.ok){
-            showAlert(j.message || "UID Added Successfully","success");
-            appendOrUpdateRow({uid, banned:false, paused:false, expires_at: j.expires_at || "Never"});
-            // Clear form
-            $("#uid").value = "";
-            $("#meta").value = "";
-          } else {
-            showAlert(j.message || "Failed to add UID", "danger");
-          }
-        } catch(e){
-          showAlert("Error: "+e, "danger");
-        }
-        return false;
-      };
+  try{
+    let res;
+    if(useGET){
+      res = await API.addGET(uid, duration, meta);
+    } else {
+      res = await API.addPOST(uid, durToHours(duration), meta);
+    }
+    const j = await res.json();
+    if(j.ok){
+      showAlert(j.message || "UID Added Successfully","success");
+      appendOrUpdateRow({uid, banned:false, paused:false, expires_at: j.expires_at || "Never"});
+      // Clear form
+      $("#uid").value = "";
+      $("#meta").value = "";
+    } else {
+      showAlert(j.message || "Failed to add UID", "danger");
+    }
+  } catch(e){
+    showAlert("Error: "+e, "danger");
+  }
+  return false;
+};
 
-      // Copy GET link for the current form values
-      $("#copyGetLink").onclick = ()=>{
-        const uid = $("#uid").value.trim();
-        const duration = $("#duration").value;
-        const token = getToken();
-        if(!uid || !token){ showAlert("Enter UID and Token first","warning"); return; }
-        const link = `${location.origin}/api/allow/${encodeURIComponent(uid)}/${encodeURIComponent(duration)}?key=${encodeURIComponent(token)}`;
-        navigator.clipboard.writeText(link).then(()=>showAlert("GET link copied to clipboard","success"));
-      };
+// Copy GET link for the current form values
+$("#copyGetLink").onclick = ()=>{
+  const uid = $("#uid").value.trim();
+  const duration = $("#duration").value;
+  const token = getToken();
+  if(!uid || !token){ showAlert("Enter UID and Token first","warning"); return; }
+  const link = `${location.origin}/api/allow/${encodeURIComponent(uid)}/${encodeURIComponent(duration)}?key=${encodeURIComponent(token)}`;
+  navigator.clipboard.writeText(link).then(()=>showAlert("GET link copied to clipboard","success"));
+};
 
-      // --- Row actions ---
-      async function banUID(uid){ await action(uid, API.ban, "UID Banned Successfully", {banned:true, paused:false}); }
-      async function unbanUID(uid){ await action(uid, API.unban, "UID Unbanned Successfully", {banned:false}); }
-      async function pauseUID(uid){ await action(uid, API.pause, "UID Paused Successfully", {paused:true}); }
-      async function unpauseUID(uid){ await action(uid, API.unpause, "UID Unpaused Successfully", {paused:false}); }
-      async function delUID(uid){
-        if(!confirm(`Are you sure you want to delete UID: ${uid}?`)) return;
-        await action(uid, API.del, "UID Deleted Successfully", null, true);
-      }
+// --- Row actions ---
+async function banUID(uid){ await action(uid, API.ban, "UID Banned Successfully", {banned:true, paused:false}); }
+async function unbanUID(uid){ await action(uid, API.unban, "UID Unbanned Successfully", {banned:false}); }
+async function pauseUID(uid){ await action(uid, API.pause, "UID Paused Successfully", {paused:true}); }
+async function unpauseUID(uid){ await action(uid, API.unpause, "UID Unpaused Successfully", {paused:false}); }
+async function delUID(uid){
+  if(!confirm(`Are you sure you want to delete UID: ${uid}?`)) return;
+  await action(uid, API.del, "UID Deleted Successfully", null, true);
+}
 
-      async function action(uid, fn, okMsg, patch=null, remove=false){
-        try{
-          const r = await fn(uid);
-          const j = await r.json();
-          if(j.ok){
-            showAlert(okMsg, "success");
-            if(remove){ removeRow(uid); }
-            else { patchRow(uid, patch); }
-          } else {
-            showAlert(j.message || "Action Failed", "danger");
-          }
-        } catch(e){
-          showAlert("Error: "+e, "danger");
-        }
-      }
+async function action(uid, fn, okMsg, patch=null, remove=false){
+  try{
+    const r = await fn(uid);
+    const j = await r.json();
+    if(j.ok){
+      showAlert(okMsg, "success");
+      if(remove){ removeRow(uid); }
+      else { patchRow(uid, patch); }
+    } else {
+      showAlert(j.message || "Action Failed", "danger");
+    }
+  } catch(e){
+    showAlert("Error: "+e, "danger");
+  }
+}
 
-      function rowFor(uid){ return document.querySelector(`tr[data-uid="${CSS.escape(uid)}"]`); }
+function rowFor(uid){ return document.querySelector(`tr[data-uid="${CSS.escape(uid)}"]`); }
 
-      function patchRow(uid, patch){
-        const tr = rowFor(uid);
-        if(!tr) return;
-        if(patch && typeof patch.banned === "boolean") {
-          setBadge(tr, patch);
-        }
-        if(patch && typeof patch.paused === "boolean") {
-          setBadge(tr, patch);
-        }
-      }
+function patchRow(uid, patch){
+  const tr = rowFor(uid);
+  if(!tr) return;
+  if(patch && typeof patch.banned === "boolean") {
+    setBadge(tr, patch);
+  }
+  if(patch && typeof patch.paused === "boolean") {
+    setBadge(tr, patch);
+  }
+}
 
-      function setBadge(tr, state){
-        const td = tr.children[1];
-        if(!td) return;
-        if(state.banned) td.innerHTML = '<span class="badge bg-danger badge-wide">Banned</span>';
-        else if(state.paused) td.innerHTML = '<span class="badge bg-warning text-dark badge-wide">Paused</span>';
-        else td.innerHTML = '<span class="badge bg-success badge-wide">Active</span>';
-      }
+function setBadge(tr, state){
+  const td = tr.children[1];
+  if(!td) return;
+  if(state.banned) td.innerHTML = '<span class="badge bg-danger badge-wide">Banned</span>';
+  else if(state.paused) td.innerHTML = '<span class="badge bg-warning text-dark badge-wide">Paused</span>';
+  else td.innerHTML = '<span class="badge bg-success badge-wide">Active</span>';
+}
 
-      function removeRow(uid){
-        const tr = rowFor(uid);
-        if(tr) tr.remove();
-      }
+function removeRow(uid){
+  const tr = rowFor(uid);
+  if(tr) tr.remove();
+}
 
-      function appendOrUpdateRow(item){
-        let tr = rowFor(item.uid);
-        if(!tr){
-          tr = document.createElement("tr");
-          tr.setAttribute("data-uid", item.uid);
-          tr.innerHTML = `
-            <td class="mono fw-semibold">${item.uid}</td>
-            <td></td>
-            <td class="mono">${item.expires_at || "Never"}</td>
-            <td class="text-end action-buttons">
-              <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-danger" onclick="banUID('${item.uid}')" title="Ban">
-                  <i class="fas fa-ban"></i>
-                </button>
-                <button class="btn btn-outline-success" onclick="unbanUID('${item.uid}')" title="Unban">
-                  <i class="fas fa-check-circle"></i>
-                </button>
-                <button class="btn btn-outline-warning" onclick="pauseUID('${item.uid}')" title="Pause">
-                  <i class="fas fa-pause"></i>
-                </button>
-                <button class="btn btn-outline-primary" onclick="unpauseUID('${item.uid}')" title="Unpause">
-                  <i class="fas fa-play"></i>
-                </button>
-                <button class="btn btn-outline-secondary" onclick="delUID('${item.uid}')" title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-                <button class="btn btn-outline-dark" onclick="copyLinks('${item.uid}')" title="Copy Links">
-                  <i class="fas fa-copy"></i>
-                </button>
-              </div>
-            </td>`;
-          $("#uidTable").prepend(tr);
-        }
-        tr.children[0].textContent = item.uid;
-        setBadge(tr, item);
-        tr.children[2].textContent = item.expires_at || "Never";
-      }
+function appendOrUpdateRow(item){
+  let tr = rowFor(item.uid);
+  if(!tr){
+    tr = document.createElement("tr");
+    tr.setAttribute("data-uid", item.uid);
+    tr.innerHTML = `
+      <td class="mono fw-semibold">${item.uid}</td>
+      <td></td>
+      <td class="mono">${item.expires_at || "Never"}</td>
+      <td class="text-end action-buttons">
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-danger" onclick="banUID('${item.uid}')" title="Ban">
+            <i class="fas fa-ban"></i>
+          </button>
+          <button class="btn btn-outline-success" onclick="unbanUID('${item.uid}')" title="Unban">
+            <i class="fas fa-check-circle"></i>
+          </button>
+          <button class="btn btn-outline-warning" onclick="pauseUID('${item.uid}')" title="Pause">
+            <i class="fas fa-pause"></i>
+          </button>
+          <button class="btn btn-outline-primary" onclick="unpauseUID('${item.uid}')" title="Unpause">
+            <i class="fas fa-play"></i>
+          </button>
+          <button class="btn btn-outline-secondary" onclick="delUID('${item.uid}')" title="Delete">
+            <i class="fas fa-trash"></i>
+          </button>
+          <button class="btn btn-outline-dark" onclick="copyLinks('${item.uid}')" title="Copy Links">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+      </td>`;
+    $("#uidTable").prepend(tr);
+  }
+  tr.children[0].textContent = item.uid;
+  setBadge(tr, item);
+  tr.children[2].textContent = item.expires_at || "Never";
+}
 
-      $("#refreshBtn").onclick = async ()=>{
-        try{
-          const r = await API.list();
-          const j = await r.json();
-          if(j.ok){
-            const tbody = $("#uidTable");
-            tbody.innerHTML = "";
-            j.uids.forEach(u => appendOrUpdateRow({
-              uid: u.uid, banned: u.banned, paused: u.paused, expires_at: u.expires_at || "Never"
-            }));
-            showAlert("UID List Refreshed","success");
-          } else showAlert("Failed to refresh UID list","danger");
-        } catch(e){ showAlert("Error: "+e, "danger"); }
-      };
+$("#refreshBtn").onclick = async ()=>{
+  try{
+    const r = await API.list();
+    const j = await r.json();
+    if(j.ok){
+      const tbody = $("#uidTable");
+      tbody.innerHTML = "";
+      j.uids.forEach(u => appendOrUpdateRow({
+        uid: u.uid, banned: u.banned, paused: u.paused, expires_at: u.expires_at || "Never"
+      }));
+      showAlert("UID List Refreshed","success");
+    } else showAlert("Failed to refresh UID list","danger");
+  } catch(e){ showAlert("Error: "+e, "danger"); }
+};
 
-      $("#clearExpiredBtn").onclick = async ()=>{
-        if(!confirm("Are you sure you want to clear all expired UIDs?")) return;
-        try{
-          const r = await API.clearExpired();
-          const j = await r.json();
-          if(j.ok){ 
-            showAlert(`${j.message} (${j.count} UIDs cleared)`, "success"); 
-            $("#refreshBtn").click(); 
-          }
-          else showAlert(j.message||"Failed to clear expired UIDs", "danger");
-        } catch(e){ showAlert("Error: "+e, "danger"); }
-      };
+$("#clearExpiredBtn").onclick = async ()=>{
+  if(!confirm("Are you sure you want to clear all expired UIDs?")) return;
+  try{
+    const r = await API.clearExpired();
+    const j = await r.json();
+    if(j.ok){ 
+      showAlert(`${j.message} (${j.count} UIDs cleared)`, "success"); 
+      $("#refreshBtn").click(); 
+    }
+    else showAlert(j.message||"Failed to clear expired UIDs", "danger");
+  } catch(e){ showAlert("Error: "+e, "danger"); }
+};
 
-      // Copy handy GET links for a UID
-      window.copyLinks = (uid)=>{
-        const key = getToken();
-        if(!key){ showAlert("Please save admin token first","warning"); return; }
-        const base = location.origin;
-        const links = [
-          `Allow (2 days): ${base}/api/allow/${encodeURIComponent(uid)}/2d?key=${encodeURIComponent(key)}`,
-          `Ban: ${base}/api/deny/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
-          `Pause: ${base}/api/pause/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
-          `Unpause: ${base}/api/unpause/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
-          `Delete: ${base}/api/remove/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`
-        ].join('\n\n');
-        navigator.clipboard.writeText(links).then(()=>showAlert("All action links copied to clipboard","success"));
-      };
+// Copy handy GET links for a UID
+window.copyLinks = (uid)=>{
+  const key = getToken();
+  if(!key){ showAlert("Please save admin token first","warning"); return; }
+  const base = location.origin;
+  const links = [
+    `Allow (2 days): ${base}/api/allow/${encodeURIComponent(uid)}/2d?key=${encodeURIComponent(key)}`,
+    `Ban: ${base}/api/deny/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
+    `Pause: ${base}/api/pause/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
+    `Unpause: ${base}/api/unpause/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
+    `Delete: ${base}/api/remove/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`
+  ].join('\n\n');
+  navigator.clipboard.writeText(links).then(()=>showAlert("All action links copied to clipboard","success"));
+};
     </script>
-  </body>
 
+    
+  </body>
 </html>
