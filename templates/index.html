@@ -1,0 +1,754 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cursed Core UID Bypass</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      :root {
+        --primary-red: #ff4444;
+        --primary-dark: #1c1c1c;
+        --primary-gray: #404040;
+        --accent-red: #ff6b6b;
+        --light-gray: #6c757d;
+        --text-light: #e9ecef;
+        --card-bg: #2a2a2a;
+        --border-color: #404040;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+      }
+      
+      body {
+        background-color: var(--primary-dark);
+        color: var(--text-light);
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        min-height: 100vh;
+      }
+      
+      .mono { 
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; 
+      }
+      
+      .badge-wide { 
+        min-width: 72px; 
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+      }
+      
+      .header-gradient {
+        background: linear-gradient(135deg, var(--primary-red) 0%, #cc3333 100%);
+        color: white;
+        padding: 1.5rem 0;
+        border-radius: 0 0 1rem 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .header-gradient::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.3;
+      }
+      
+      .card {
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        margin-bottom: 1.5rem;
+        background-color: var(--card-bg);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+      }
+      
+      .card-header {
+        background-color: var(--primary-gray);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: var(--text-light);
+      }
+      
+      .form-control, .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-color);
+        padding: 0.5rem 0.75rem;
+        transition: all 0.2s;
+        background-color: var(--primary-gray);
+        color: var(--text-light);
+      }
+      
+      .form-control:focus, .form-select:focus {
+        border-color: var(--primary-red);
+        box-shadow: 0 0 0 0.2rem rgba(255, 68, 68, 0.25);
+        background-color: var(--primary-gray);
+        color: var(--text-light);
+      }
+      
+      .form-control::placeholder {
+        color: var(--light-gray);
+      }
+      
+      .btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary-red) 0%, #cc3333 100%);
+        border: none;
+        color: white;
+      }
+      
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #cc3333 0%, #b32b2b 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(255, 68, 68, 0.4);
+        color: white;
+      }
+      
+      .btn-outline-secondary {
+        border-color: var(--light-gray);
+        color: var(--light-gray);
+      }
+      
+      .btn-outline-secondary:hover {
+        background-color: var(--light-gray);
+        border-color: var(--light-gray);
+        color: var(--primary-dark);
+      }
+      
+      .btn-outline-danger {
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+      }
+      
+      .btn-outline-danger:hover {
+        background-color: var(--danger-color);
+        border-color: var(--danger-color);
+        color: white;
+      }
+      
+      .btn-outline-success {
+        border-color: var(--success-color);
+        color: var(--success-color);
+      }
+      
+      .btn-outline-success:hover {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+        color: white;
+      }
+      
+      .btn-outline-warning {
+        border-color: var(--warning-color);
+        color: var(--warning-color);
+      }
+      
+      .btn-outline-warning:hover {
+        background-color: var(--warning-color);
+        border-color: var(--warning-color);
+        color: #212529;
+      }
+      
+      .btn-outline-dark {
+        border-color: var(--primary-gray);
+        color: var(--text-light);
+      }
+      
+      .btn-outline-dark:hover {
+        background-color: var(--primary-gray);
+        border-color: var(--primary-gray);
+        color: var(--text-light);
+      }
+      
+      .btn-light {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: var(--text-light);
+      }
+      
+      .btn-light:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+      }
+      
+      .table {
+        margin-bottom: 0;
+        color: var(--text-light);
+      }
+      
+      .table th {
+        border-top: none;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 600;
+        color: var(--light-gray);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.75rem 1rem;
+        background-color: var(--primary-gray);
+      }
+      
+      .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-color: var(--border-color);
+        background-color: var(--card-bg);
+      }
+      
+      .table tbody tr {
+        transition: background-color 0.2s;
+      }
+      
+      .table tbody tr:hover {
+        background-color: rgba(255, 68, 68, 0.05);
+      }
+      
+      .alert {
+        border-radius: 0.75rem;
+        border: none;
+        padding: 1rem 1.25rem;
+      }
+      
+      .alert-success {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: #b8f2c5;
+      }
+      
+      .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: #f8d7da;
+      }
+      
+      .alert-warning {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #fff3cd;
+      }
+      
+      .alert-info {
+        background-color: rgba(255, 68, 68, 0.2);
+        color: #ffe6e6;
+      }
+      
+      .input-group-text {
+        background-color: var(--primary-gray);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem 0 0 0.5rem;
+        color: var(--text-light);
+      }
+      
+      .status-badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+        border-radius: 0.5rem;
+      }
+      
+      .action-buttons .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+      
+      .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      
+      .logo-icon {
+        font-size: 2.5rem;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      
+      .title-container h1 {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        font-size: 2rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      
+      .title-container p {
+        opacity: 0.9;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+      }
+      
+      .admin-token-container {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .feature-icon {
+        color: var(--primary-red);
+        font-size: 1.25rem;
+      }
+      
+      .form-check-input:checked {
+        background-color: var(--primary-red);
+        border-color: var(--primary-red);
+      }
+      
+      .form-check-input {
+        background-color: var(--primary-gray);
+        border-color: var(--border-color);
+      }
+      
+      .form-check-label {
+        color: var(--text-light);
+      }
+      
+      .form-label {
+        color: var(--text-light);
+        font-weight: 500;
+      }
+      
+      @media (max-width: 768px) {
+        .header-gradient {
+          border-radius: 0;
+          margin-bottom: 1.5rem;
+        }
+        
+        .logo-container {
+          flex-direction: column;
+          text-align: center;
+          gap: 0.5rem;
+        }
+        
+        .action-buttons .btn-group {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.25rem;
+        }
+        
+        .action-buttons .btn {
+          flex: 1;
+          min-width: 80px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-gradient">
+      <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+          <div class="logo-container">
+            <i class="fas fa-skull-crossbones logo-icon"></i>
+            <div class="title-container">
+              <h1>Cursed Core UID Bypass</h1>
+              <p>Manage access permissions with dark elegance</p>
+            </div>
+          </div>
+          <div class="admin-token-container mt-3 mt-md-0">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-key"></i></span>
+              <input id="adminToken" type="password" class="form-control" placeholder="Enter admin token...">
+              <button class="btn btn-light" id="saveTokenBtn" title="Save token in this browser">
+                <i class="fas fa-save"></i> Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container pb-5">
+      <!-- Add UID Card -->
+      <div class="card">
+        <div class="card-header d-flex align-items-center">
+          <i class="fas fa-plus-circle feature-icon me-2"></i>
+          <span>Add New UID</span>
+        </div>
+        <div class="card-body">
+          <form id="addForm" class="row gy-3 gx-3 align-items-end">
+            <div class="col-12 col-md-4">
+              <label class="form-label fw-semibold">UID</label>
+              <input id="uid" class="form-control mono" placeholder="Enter UID..." required>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label fw-semibold">Duration</label>
+              <select id="duration" class="form-select">
+                <option value="30m">30 minutes</option>
+                <option value="12h">12 hours</option>
+                <option value="3d" selected>3 days</option>
+                <option value="7d" selected>7 days</option>
+                <option value="15d" selected>15 days</option>
+                <option value="30d" selected>30 days</option>
+                <option value="forever">Forever</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label fw-semibold">Meta (optional)</label>
+              <input id="meta" class="form-control" placeholder="Add notes...">
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+              <button class="btn btn-primary" type="submit">
+                <i class="fas fa-plus"></i> Add UID
+              </button>
+            </div>
+            <div class="col-12 d-flex gap-3 align-items-center mt-2">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="useGet" checked>
+                <label class="form-check-label" for="useGet">Use GET endpoint</label>
+              </div>
+              <button class="btn btn-outline-secondary btn-sm" id="copyGetLink" type="button">
+                <i class="fas fa-copy"></i> Copy GET Link
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="alert" class="alert d-none" role="alert"></div>
+
+      <!-- UID List -->
+      <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-list feature-icon me-2"></i>
+            <span>Recent UIDs</span>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm" id="refreshBtn">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button class="btn btn-outline-danger btn-sm" id="clearExpiredBtn">
+              <i class="fas fa-trash"></i> Clear Expired
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>UID</th>
+                  <th>Status</th>
+                  <th>Expires</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="uidTable">
+                <!-- Sample data for demonstration -->
+                <tr data-uid="ABC123">
+                  <td class="mono fw-semibold">ABC123</td>
+                  <td>
+                    <span class="badge bg-success badge-wide">Active</span>
+                  </td>
+                  <td class="mono">2023-12-31 23:59:59</td>
+                  <td class="text-end action-buttons">
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-danger" onclick="banUID('ABC123')" title="Ban">
+                        <i class="fas fa-ban"></i>
+                      </button>
+                      <button class="btn btn-outline-success" onclick="unbanUID('ABC123')" title="Unban">
+                        <i class="fas fa-check-circle"></i>
+                      </button>
+                      <button class="btn btn-outline-warning" onclick="pauseUID('ABC123')" title="Pause">
+                        <i class="fas fa-pause"></i>
+                      </button>
+                      <button class="btn btn-outline-primary" onclick="unpauseUID('ABC123')" title="Unpause">
+                        <i class="fas fa-play"></i>
+                      </button>
+                      <button class="btn btn-outline-secondary" onclick="delUID('ABC123')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <button class="btn btn-outline-dark" onclick="copyLinks('ABC123')" title="Copy Links">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-uid="XYZ789">
+                  <td class="mono fw-semibold">XYZ789</td>
+                  <td>
+                    <span class="badge bg-danger badge-wide">Banned</span>
+                  </td>
+                  <td class="mono">Never</td>
+                  <td class="text-end action-buttons">
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-danger" onclick="banUID('XYZ789')" title="Ban">
+                        <i class="fas fa-ban"></i>
+                      </button>
+                      <button class="btn btn-outline-success" onclick="unbanUID('XYZ789')" title="Unban">
+                        <i class="fas fa-check-circle"></i>
+                      </button>
+                      <button class="btn btn-outline-warning" onclick="pauseUID('XYZ789')" title="Pause">
+                        <i class="fas fa-pause"></i>
+                      </button>
+                      <button class="btn btn-outline-primary" onclick="unpauseUID('XYZ789')" title="Unpause">
+                        <i class="fas fa-play"></i>
+                      </button>
+                      <button class="btn btn-outline-secondary" onclick="delUID('XYZ789')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <button class="btn btn-outline-dark" onclick="copyLinks('XYZ789')" title="Copy Links">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- helpers ---
+      const $ = (s)=>document.querySelector(s);
+      const alertBox = $("#alert");
+      const adminTokenInput = $("#adminToken");
+
+      function showAlert(msg, type="info"){
+        alertBox.className = `alert alert-${type} d-flex align-items-center`;
+        alertBox.innerHTML = `
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+          <span>${msg}</span>
+        `;
+        alertBox.classList.remove("d-none");
+        setTimeout(()=>alertBox.classList.add("d-none"), 3000);
+      }
+
+      function getToken(){
+        return adminTokenInput.value || localStorage.getItem("uid_admin_token") || "";
+      }
+      function setToken(v){
+        adminTokenInput.value = v || "";
+        if(v) localStorage.setItem("uid_admin_token", v);
+      }
+
+      // load token from localStorage on load
+      (function init(){
+        setToken(localStorage.getItem("uid_admin_token") || new URLSearchParams(location.search).get("admin_token") || "");
+      })();
+
+      $("#saveTokenBtn").onclick = ()=>{ setToken(adminTokenInput.value); showAlert("Token saved in this browser","success"); };
+
+      // --- API base + wrappers ---
+      const API = {
+        addGET: (uid, duration, meta="") =>
+          fetch(`/api/allow/${encodeURIComponent(uid)}/${encodeURIComponent(duration)}?key=${encodeURIComponent(getToken())}` + (meta?`&meta=${encodeURIComponent(meta)}`:"")),
+        addPOST: (uid, hours, meta="") =>
+          fetch(`/api/add?admin_token=${encodeURIComponent(getToken())}`, {
+            method: "POST", headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ uid, hours, meta })
+          }),
+        ban: (uid)=> fetch(`/api/deny/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+        unban: (uid)=> fetch(`/api/allow_unban/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+        pause: (uid)=> fetch(`/api/pause/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+        unpause: (uid)=> fetch(`/api/unpause/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+        del: (uid)=> fetch(`/api/remove/${encodeURIComponent(uid)}?key=${encodeURIComponent(getToken())}`),
+        list: ()=> fetch(`/api/list`),
+        clearExpired: ()=> fetch(`/api/clear_expired/yes?key=${encodeURIComponent(getToken())}`),
+      };
+
+      // duration -> hours (for POST) mapper
+      function durToHours(d){
+        const s = String(d || "").toLowerCase();
+        if(s === "forever" || s === "never" || s === "0") return null;
+        if(s.endsWith("d")) return parseFloat(s)*24;
+        if(s.endsWith("h")) return parseFloat(s);
+        if(s.endsWith("m")) return parseFloat(s)/60;
+        const n = parseFloat(s); return isFinite(n)? n : null;
+      }
+
+      // --- Add UID form ---
+      $("#addForm").onsubmit = async (ev)=>{
+        ev.preventDefault();
+        const uid = $("#uid").value.trim();
+        const duration = $("#duration").value;
+        const meta = $("#meta").value.trim();
+        const useGET = $("#useGet").checked;
+        if(!uid){ showAlert("UID is required","warning"); return false; }
+
+        try{
+          let res;
+          if(useGET){
+            res = await API.addGET(uid, duration, meta);
+          } else {
+            res = await API.addPOST(uid, durToHours(duration), meta);
+          }
+          const j = await res.json();
+          if(j.ok){
+            showAlert(j.message || "UID Added Successfully","success");
+            appendOrUpdateRow({uid, banned:false, paused:false, expires_at: j.expires_at || "Never"});
+            // Clear form
+            $("#uid").value = "";
+            $("#meta").value = "";
+          } else {
+            showAlert(j.message || "Failed to add UID", "danger");
+          }
+        } catch(e){
+          showAlert("Error: "+e, "danger");
+        }
+        return false;
+      };
+
+      // Copy GET link for the current form values
+      $("#copyGetLink").onclick = ()=>{
+        const uid = $("#uid").value.trim();
+        const duration = $("#duration").value;
+        const token = getToken();
+        if(!uid || !token){ showAlert("Enter UID and Token first","warning"); return; }
+        const link = `${location.origin}/api/allow/${encodeURIComponent(uid)}/${encodeURIComponent(duration)}?key=${encodeURIComponent(token)}`;
+        navigator.clipboard.writeText(link).then(()=>showAlert("GET link copied to clipboard","success"));
+      };
+
+      // --- Row actions ---
+      async function banUID(uid){ await action(uid, API.ban, "UID Banned Successfully", {banned:true, paused:false}); }
+      async function unbanUID(uid){ await action(uid, API.unban, "UID Unbanned Successfully", {banned:false}); }
+      async function pauseUID(uid){ await action(uid, API.pause, "UID Paused Successfully", {paused:true}); }
+      async function unpauseUID(uid){ await action(uid, API.unpause, "UID Unpaused Successfully", {paused:false}); }
+      async function delUID(uid){
+        if(!confirm(`Are you sure you want to delete UID: ${uid}?`)) return;
+        await action(uid, API.del, "UID Deleted Successfully", null, true);
+      }
+
+      async function action(uid, fn, okMsg, patch=null, remove=false){
+        try{
+          const r = await fn(uid);
+          const j = await r.json();
+          if(j.ok){
+            showAlert(okMsg, "success");
+            if(remove){ removeRow(uid); }
+            else { patchRow(uid, patch); }
+          } else {
+            showAlert(j.message || "Action Failed", "danger");
+          }
+        } catch(e){
+          showAlert("Error: "+e, "danger");
+        }
+      }
+
+      function rowFor(uid){ return document.querySelector(`tr[data-uid="${CSS.escape(uid)}"]`); }
+
+      function patchRow(uid, patch){
+        const tr = rowFor(uid);
+        if(!tr) return;
+        if(patch && typeof patch.banned === "boolean") {
+          setBadge(tr, patch);
+        }
+        if(patch && typeof patch.paused === "boolean") {
+          setBadge(tr, patch);
+        }
+      }
+
+      function setBadge(tr, state){
+        const td = tr.children[1];
+        if(!td) return;
+        if(state.banned) td.innerHTML = '<span class="badge bg-danger badge-wide">Banned</span>';
+        else if(state.paused) td.innerHTML = '<span class="badge bg-warning text-dark badge-wide">Paused</span>';
+        else td.innerHTML = '<span class="badge bg-success badge-wide">Active</span>';
+      }
+
+      function removeRow(uid){
+        const tr = rowFor(uid);
+        if(tr) tr.remove();
+      }
+
+      function appendOrUpdateRow(item){
+        let tr = rowFor(item.uid);
+        if(!tr){
+          tr = document.createElement("tr");
+          tr.setAttribute("data-uid", item.uid);
+          tr.innerHTML = `
+            <td class="mono fw-semibold">${item.uid}</td>
+            <td></td>
+            <td class="mono">${item.expires_at || "Never"}</td>
+            <td class="text-end action-buttons">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-danger" onclick="banUID('${item.uid}')" title="Ban">
+                  <i class="fas fa-ban"></i>
+                </button>
+                <button class="btn btn-outline-success" onclick="unbanUID('${item.uid}')" title="Unban">
+                  <i class="fas fa-check-circle"></i>
+                </button>
+                <button class="btn btn-outline-warning" onclick="pauseUID('${item.uid}')" title="Pause">
+                  <i class="fas fa-pause"></i>
+                </button>
+                <button class="btn btn-outline-primary" onclick="unpauseUID('${item.uid}')" title="Unpause">
+                  <i class="fas fa-play"></i>
+                </button>
+                <button class="btn btn-outline-secondary" onclick="delUID('${item.uid}')" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+                <button class="btn btn-outline-dark" onclick="copyLinks('${item.uid}')" title="Copy Links">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </td>`;
+          $("#uidTable").prepend(tr);
+        }
+        tr.children[0].textContent = item.uid;
+        setBadge(tr, item);
+        tr.children[2].textContent = item.expires_at || "Never";
+      }
+
+      $("#refreshBtn").onclick = async ()=>{
+        try{
+          const r = await API.list();
+          const j = await r.json();
+          if(j.ok){
+            const tbody = $("#uidTable");
+            tbody.innerHTML = "";
+            j.uids.forEach(u => appendOrUpdateRow({
+              uid: u.uid, banned: u.banned, paused: u.paused, expires_at: u.expires_at || "Never"
+            }));
+            showAlert("UID List Refreshed","success");
+          } else showAlert("Failed to refresh UID list","danger");
+        } catch(e){ showAlert("Error: "+e, "danger"); }
+      };
+
+      $("#clearExpiredBtn").onclick = async ()=>{
+        if(!confirm("Are you sure you want to clear all expired UIDs?")) return;
+        try{
+          const r = await API.clearExpired();
+          const j = await r.json();
+          if(j.ok){ 
+            showAlert(`${j.message} (${j.count} UIDs cleared)`, "success"); 
+            $("#refreshBtn").click(); 
+          }
+          else showAlert(j.message||"Failed to clear expired UIDs", "danger");
+        } catch(e){ showAlert("Error: "+e, "danger"); }
+      };
+
+      // Copy handy GET links for a UID
+      window.copyLinks = (uid)=>{
+        const key = getToken();
+        if(!key){ showAlert("Please save admin token first","warning"); return; }
+        const base = location.origin;
+        const links = [
+          `Allow (2 days): ${base}/api/allow/${encodeURIComponent(uid)}/2d?key=${encodeURIComponent(key)}`,
+          `Ban: ${base}/api/deny/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
+          `Pause: ${base}/api/pause/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
+          `Unpause: ${base}/api/unpause/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`,
+          `Delete: ${base}/api/remove/${encodeURIComponent(uid)}?key=${encodeURIComponent(key)}`
+        ].join('\n\n');
+        navigator.clipboard.writeText(links).then(()=>showAlert("All action links copied to clipboard","success"));
+      };
+    </script>
+  </body>
+</html>
